@@ -345,8 +345,15 @@ const THEMEN=[
 {
   id:'bezugskosten',title:'Was sind Bezugskosten?',kurz:'Begriffe klären und zuordnen',
   merke:p=>`<mark>Merke</mark><p>Bezugskosten sind Kosten, die entstehen, bis das Material bei uns im Betrieb ankommt. Dazu zählen Fracht, Rollgeld, Transportversicherung, Verpackung der Lieferung und Zoll. Sie machen den Einkauf teurer und werden auf einem eigenen Konto gebucht.</p><p>Jede Stoffart hat ihr Konto für Bezugskosten. Rohstoffe <b>6001 BZKR</b>, Fremdbauteile <b>6011 BZKF</b>, Hilfsstoffe <b>6021 BZKH</b>, Betriebsstoffe <b>6031 BZKB</b>.</p>`,
-  gen:()=>{const a=pick(ARTEN);const o=pick(ARTEN.filter(x=>x!==a));return {...a,o}},
+  gen:()=>{const r=pick(ROH),a=ARTEN[r.a];const o=pick(ARTEN.filter(x=>x!==a));return {...a,o,r}},
   tasks:p=>[
+    {type:'mc',title:'Konto bestimmen',q:`Auf welchem Konto buchst du die Anlieferung von ${p.r.n}?`,
+     opts:[
+      {t:kl(p.ka),why:`Das ist das Konto für den Warenwert der ${p.art} selbst. Die Anlieferung ist etwas anderes.`},
+      {t:kl(p.kb),ok:true},
+      {t:kl(p.kn),why:'Hier stehen Nachlässe, die den Einkauf billiger machen.'},
+      {t:kl(p.o.kb),why:`Das ist das Konto für Bezugskosten bei ${p.o.art}. ${p.r.n} gehören aber zu den ${p.art}.`}
+     ],expl:`Die Anlieferung ist ein Bezugskosten-Posten. ${p.r.n} zählen zu den ${p.art}, deshalb steht sie auf ${kl(p.kb)}.`},
     {type:'zuordnung',title:'Zuordnungsspiel',intro:'Tippe eine Karte an und danach das passende Feld. Gehört der Posten zu den Bezugskosten?',
      items:[
       {t:'Fracht, die der Lieferer für die Lieferung berechnet',bz:true,h:'Fracht gehört zu den Bezugskosten.'},
@@ -362,13 +369,6 @@ const THEMEN=[
       {t:'Büromaterial, zum Beispiel Druckerpapier',bz:false,h:'Büromaterial gehört auf 6800 BMK.'},
       {t:'Löhne der Beschäftigten im Lager',bz:false,h:'Löhne werden auf 6200 LG gebucht.'}
      ]},
-    {type:'mc',title:'Wissen prüfen',q:`Auf welchem Konto buchst du Bezugskosten für ${p.art}?`,
-     opts:[
-      {t:kl(p.ka),why:'Das ist das Konto für den Warenwert selbst.'},
-      {t:kl(p.kb),ok:true},
-      {t:kl(p.kn),why:'Hier stehen Nachlässe, die den Einkauf billiger machen.'},
-      {t:kl(p.o.kb),why:`Das ist das Konto für Bezugskosten bei ${p.o.art}.`}
-     ],expl:`Bezugskosten für ${p.art} stehen auf ${kl(p.kb)}.`},
     {type:'mc',title:'Wissen prüfen',q:'Wie wirken Bezugskosten auf das, was wir für das Material insgesamt zahlen?',
      opts:[
       {t:'Sie erhöhen den Betrag.',ok:true},
