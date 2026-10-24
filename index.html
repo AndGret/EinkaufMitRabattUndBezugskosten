@@ -226,7 +226,7 @@ details.firma summary{padding:12px 16px;cursor:pointer;font-family:var(--f-head)
             <tr><td>Rohstoffe<small>Hauptbestandteil der Backwaren</small></td><td>Weizenmehl, Roggenmehl, Dinkelmehl, Zucker, Butter, Eier, Milch</td><td class="kto">6000 AWR</td></tr>
             <tr><td>Fremdbauteile<small>fertig zugekauft, werden verarbeitet</small></td><td>Waffelhörnchen, Mürbteigschalen, Marzipanrosen</td><td class="kto">6010 AWF</td></tr>
             <tr><td>Hilfsstoffe<small>Nebenbestandteil der Backwaren</small></td><td>Hefe, Salz, Backpulver, Sesam, Mohn, Kümmel</td><td class="kto">6020 AWH</td></tr>
-            <tr><td>Betriebsstoffe<small>werden bei der Herstellung verbraucht</small></td><td>Maschinenöl, Backofenreiniger, Backpapier, Heizöl, Diesel, Spülmittel</td><td class="kto">6030 AWB</td></tr>
+            <tr><td>Betriebsstoffe<small>werden bei der Herstellung verbraucht</small></td><td>Maschinenöl, Heizöl, Diesel</td><td class="kto">6030 AWB</td></tr>
           </tbody>
         </table>
       </div>
@@ -321,11 +321,8 @@ const ROH=[
   {a:2,l:['Gewürzhandel Maurer KG'],n:'Mohn',e:'Beutel',p:[30,70],m:[10,50]},
   {a:2,l:['Gewürzhandel Maurer KG'],n:'Kümmel',e:'Beutel',p:[20,50],m:[10,50]},
   {a:3,l:['Mineralöle Brandstetter GmbH'],n:'Maschinenöl',e:'Kanister',p:[25,70],m:[5,25]},
-  {a:3,l:['Reinigungsbedarf Kainz GmbH'],n:'Backofenreiniger',e:'Kanister',p:[20,55],m:[5,30]},
-  {a:3,l:['Verpackung Stelzer KG'],n:'Backpapier',e:'Rollen',p:[12,35],m:[30,150]},
   {a:3,l:['Mineralöle Brandstetter GmbH'],n:'Heizöl',e:'Liter',p:[1,2],m:[500,3000]},
-  {a:3,l:['Tankstoffe Wagner KG'],n:'Diesel',e:'Liter',p:[1,2],m:[300,1500]},
-  {a:3,l:['Reinigungsbedarf Kainz GmbH'],n:'Spülmittel',e:'Kanister',p:[12,30],m:[10,60]}
+  {a:3,l:['Tankstoffe Wagner KG'],n:'Diesel',e:'Liter',p:[1,2],m:[300,1500]}
 ];
 function basis(){
   const r=pick(ROH),a=ARTEN[r.a];
