@@ -1,0 +1,729 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Einkaufstraining BWR</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bitter:wght@600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Sans+3:wght@400;600;700&display=swap">
+<style>
+/* Layout: Rechenpapier als Grund, darauf Belege und Aufgabenkarten. Eine Spalte, Themenwahl oben. */
+:root{
+  --bg:#EDF0F5; --paper:#FFFFFF; --ink:#13203A; --muted:#58647C; --line:#C8D1DE; --grid:#E1E7F0;
+  --accent:#1B4FCB; --accent-ink:#FFFFFF; --soft:#E2EAFB; --mark:#FFE36E;
+  --ok:#126B3E; --ok-bg:#E1F3E8; --bad:#A8271C; --bad-bg:#FBE7E4;
+  --f-head:'Bitter',Georgia,'Times New Roman',serif;
+  --f-body:'Source Sans 3',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --f-mono:'IBM Plex Mono',ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1626; --paper:#162238; --ink:#E6ECF7; --muted:#9BA8C0; --line:#2D3C5A; --grid:#15203A;
+    --accent:#8AAEFF; --accent-ink:#0B1530; --soft:#1E2E54; --mark:#7C6A12;
+    --ok:#62D494; --ok-bg:#12301F; --bad:#FF8F85; --bad-bg:#3A1B19; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1626; --paper:#162238; --ink:#E6ECF7; --muted:#9BA8C0; --line:#2D3C5A; --grid:#15203A;
+  --accent:#8AAEFF; --accent-ink:#0B1530; --soft:#1E2E54; --mark:#7C6A12;
+  --ok:#62D494; --ok-bg:#12301F; --bad:#FF8F85; --bad-bg:#3A1B19; color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  margin:0; background-color:var(--bg); color:var(--ink); font-family:var(--f-body); font-size:17px; line-height:1.5;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:24px 24px;
+  padding-left:max(16px,env(safe-area-inset-left,0px)); padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-block:20px 56px;
+}
+.wrap{max-width:920px;margin:0 auto}
+h1,h2,h3{font-family:var(--f-head);line-height:1.2;margin:0;text-wrap:balance}
+button,select,input{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+
+/* Kopf */
+.kopf{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px 20px;display:grid;gap:14px}
+.kopf-top{display:flex;flex-wrap:wrap;gap:8px 20px;align-items:baseline;justify-content:space-between}
+.eyebrow{font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+h1{font-size:30px;font-weight:700}
+.sub{margin:4px 0 0;color:var(--muted);max-width:60ch}
+.stat{font-family:var(--f-mono);font-size:15px;text-align:right}
+.bar-out{height:10px;background:var(--grid);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.bar-in{height:100%;background:var(--accent);width:0;transition:width .3s}
+
+/* Themenwahl */
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:10px;margin:16px 0}
+.tile{text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:12px 14px;display:grid;gap:6px;align-content:start;min-height:44px}
+.tile strong{font-family:var(--f-head);font-size:17px;line-height:1.25}
+.tile small{color:var(--muted);font-size:14px;line-height:1.35}
+.tile .mini{height:6px;background:var(--grid);border-radius:3px;overflow:hidden}
+.tile .mini i{display:block;height:100%;background:var(--accent)}
+.tile .cnt{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+.tile[aria-current="true"]{border:2px solid var(--accent);background:var(--soft);padding:11px 13px}
+
+/* Kontenplan */
+details.kp{background:var(--paper);border:1px solid var(--line);border-radius:6px;margin-bottom:22px}
+details.kp summary{padding:12px 16px;cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}
+.kp-body{padding:0 16px 16px;overflow-x:auto}
+.kp table{border-collapse:collapse;width:100%;min-width:420px;font-size:15px}
+.kp td,.kp th{padding:5px 8px;border-bottom:1px dotted var(--line);text-align:left}
+.kp td:first-child{font-family:var(--f-mono);white-space:nowrap}
+.kp .note{font-size:14px;color:var(--muted);margin:10px 0 0}
+
+/* Thema */
+.th-head{display:grid;gap:10px;margin-bottom:16px}
+h2{font-size:25px}
+.merke{background:var(--paper);border:2px dashed var(--muted);border-radius:6px;padding:14px 18px}
+.merke mark{background:linear-gradient(transparent 45%,var(--mark) 45%);color:inherit;font-family:var(--f-head);font-weight:700;padding:0 2px}
+.merke p{margin:6px 0 0}
+.task{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:18px;margin-bottom:18px;display:grid;gap:14px}
+.t-head{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+.t-num{font-family:var(--f-mono);font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.t-head h3{font-size:20px;flex:1 1 200px}
+.t-state{font-family:var(--f-mono);font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:12px;padding:1px 10px}
+.t-state.ok{color:var(--ok);border-color:var(--ok);background:var(--ok-bg)}
+.t-state.rev{color:var(--bad);border-color:var(--bad);background:var(--bad-bg)}
+.intro,.fall{margin:0}
+.fall{background:var(--soft);border-radius:4px;padding:10px 14px}
+.hinweis{margin:0;padding:8px 12px;border-radius:4px;background:var(--bad-bg);color:var(--bad)}
+
+/* Beleg */
+.beleg{border:1px solid var(--line);background:var(--paper);box-shadow:0 1px 0 var(--line),0 6px 16px rgba(19,32,58,.07);padding:16px 18px;max-width:640px;width:100%}
+.b-kopf{display:flex;flex-wrap:wrap;gap:6px 16px;justify-content:space-between;border-bottom:3px double var(--ink);padding-bottom:10px}
+.b-von{font-family:var(--f-head);font-weight:700;font-size:19px}
+.b-meta{font-family:var(--f-mono);font-size:13px;color:var(--muted);text-align:right}
+.b-an{font-size:14px;color:var(--muted);margin:8px 0}
+.beleg table{width:100%;border-collapse:collapse}
+.beleg th,.beleg td{padding:9px 4px;border-bottom:1px dotted var(--line);vertical-align:top;text-align:left}
+.beleg th{font-weight:400;width:55%}
+.beleg tr.info td{font-family:var(--f-mono);font-size:15px}
+.beleg tr.sum th{font-weight:700}
+.eingabe{display:flex;align-items:center;gap:6px}
+.eingabe input{width:100%;min-width:0;max-width:170px;text-align:right;font-family:var(--f-mono);font-size:17px;padding:8px 10px;border:1.5px solid var(--line);border-radius:4px;background:var(--paper);min-height:44px}
+.eingabe span{font-family:var(--f-mono)}
+.eingabe.ok input{border-color:var(--ok);background:var(--ok-bg)}
+.eingabe.bad input{border-color:var(--bad);background:var(--bad-bg)}
+.fb{font-size:15px;margin-top:6px;padding:6px 10px;border-radius:4px}
+.fb.ok{background:var(--ok-bg);color:var(--ok)}
+.fb.bad{background:var(--bad-bg);color:var(--bad)}
+.fb:empty{display:none}
+
+/* Buchung */
+.buch{display:grid;gap:10px}
+.side-lab{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:4px}
+.brow{display:grid;grid-template-columns:minmax(0,1fr) 160px;gap:8px;margin-bottom:8px;align-items:start}
+.brow select{width:100%;min-width:0;padding:8px 10px;border:1.5px solid var(--line);border-radius:4px;background:var(--paper);min-height:44px;font-size:16px}
+.brow .fb{grid-column:1/-1;margin-top:0}
+.brow.ok select,.brow.ok input{border-color:var(--ok);background:var(--ok-bg)}
+.brow.bad select,.brow.bad input{border-color:var(--bad);background:var(--bad-bg)}
+.brow .eingabe input{max-width:none}
+.an{font-family:var(--f-head);font-weight:700;font-size:20px;padding:2px 0 6px}
+@media (max-width:520px){.brow{grid-template-columns:minmax(0,1fr)}}
+
+/* Buchungssatz Anzeige */
+.bs{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:10px 16px;align-items:start;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:12px 14px;max-width:640px}
+.bs-an{font-family:var(--f-head);font-weight:700;padding-top:22px}
+.bs-line{display:flex;justify-content:space-between;gap:10px;font-family:var(--f-mono);font-size:14.5px;padding:2px 0;border-bottom:1px dotted var(--line)}
+.bs-line b{font-weight:600;white-space:nowrap}
+@media (max-width:560px){.bs{grid-template-columns:minmax(0,1fr)}.bs-an{padding-top:0}}
+.loesung{border:1.5px dashed var(--ok);border-radius:6px;padding:10px 12px;display:grid;gap:8px}
+.loesung h4{margin:0;font-size:13px;letter-spacing:.12em;text-transform:uppercase;color:var(--ok)}
+.loesung p{margin:0}
+
+/* Satz */
+.satz{font-size:18px;line-height:2.4;margin:0}
+.satz select{font-size:16px;padding:6px 8px;border:1.5px solid var(--line);border-radius:4px;background:var(--paper);min-height:40px;max-width:100%}
+.satz select.ok{border-color:var(--ok);background:var(--ok-bg)}
+.satz select.bad{border-color:var(--bad);background:var(--bad-bg)}
+.satz b{background:linear-gradient(transparent 55%,var(--mark) 55%)}
+
+/* Auswahl */
+.opts{display:grid;gap:8px}
+.opt{text-align:left;background:var(--paper);border:1.5px solid var(--line);border-radius:4px;padding:10px 14px;min-height:44px}
+.opt.bad{border-color:var(--bad);background:var(--bad-bg)}
+.opt.ok{border-color:var(--ok);background:var(--ok-bg)}
+.opt small{display:block;margin-top:4px;font-size:15px}
+
+/* Zuordnen */
+.pool{display:flex;flex-wrap:wrap;gap:8px;min-height:50px;padding:10px;border:1px dashed var(--line);border-radius:6px}
+.karte{background:var(--paper);border:1.5px solid var(--ink);border-radius:4px;padding:8px 12px;text-align:left;max-width:100%;min-height:44px;box-shadow:2px 2px 0 var(--line)}
+.karte.sel{background:var(--mark);color:var(--ink);box-shadow:2px 2px 0 var(--ink)}
+.karte.shake{border-color:var(--bad);animation:shake .35s}
+@keyframes shake{25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){.karte.shake{animation:none}.bar-in{transition:none}}
+.leer{margin:0;color:var(--muted)}
+.buckets{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.bucket{text-align:left;background:var(--soft);border:2px solid var(--line);border-radius:6px;padding:12px;display:grid;gap:6px;align-content:start;min-height:120px}
+.bucket small{color:var(--muted)}
+.bucket strong{font-family:var(--f-head);font-size:18px}
+.chip{font-size:14px;line-height:1.3;background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:4px 8px}
+
+/* Buttons und Ergebnis */
+.bar{display:flex;flex-wrap:wrap;gap:10px}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:4px;padding:10px 20px;font-weight:700;min-height:44px}
+.btn.ghost{background:transparent;color:var(--ink);border:1.5px solid var(--line)}
+.result{padding:10px 14px;border-radius:4px;font-weight:600}
+.result.ok{background:var(--ok-bg);color:var(--ok)}
+.result.rev{background:var(--bad-bg);color:var(--bad)}
+.fertig{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);border-radius:6px;padding:14px 18px;margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;font-weight:600}
+.fuss{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.fuss .btn{font-weight:600}
+</style>
+</head>
+<body>
+
+
+<div class="wrap">
+  <header class="kopf">
+    <div class="kopf-top">
+      <div>
+        <div class="eyebrow">BWR Jahrgangsstufe 8</div>
+        <h1>Einkaufstraining</h1>
+        <p class="sub">Material einkaufen und buchen. Wähle ein Thema und bearbeite die Aufgaben der Reihe nach. Du bekommst nach jedem Versuch eine Rückmeldung.</p>
+      </div>
+      <div class="stat" id="stat" aria-live="polite"></div>
+    </div>
+    <div class="bar-out" role="progressbar" aria-label="Gesamtfortschritt" aria-valuemin="0" aria-valuemax="100" id="pb"><div class="bar-in" id="pbi"></div></div>
+  </header>
+
+  <nav class="tiles" id="nav" aria-label="Themen"></nav>
+
+  <details class="kp">
+    <summary>Kontenplan-Auszug</summary>
+    <div class="kp-body">
+      <table id="kptab"></table>
+      <p class="note">Auszug aus dem Kontenplan nach dem IKR für Bayerische Realschulen (LehrplanPLUS). Alle Konten in den Auswahlfeldern stammen aus dieser Liste.</p>
+    </div>
+  </details>
+
+  <main id="view"></main>
+
+  <div class="fuss"><button class="btn ghost" id="resetAll">Alles zurücksetzen</button></div>
+</div>
+
+<script>
+/* ---------- Hilfen ---------- */
+const r2=n=>Math.round((n+Number.EPSILON)*100)/100;
+const num=n=>n.toLocaleString('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2});
+const eur=n=>num(n)+' €';
+const ri=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+const pick=a=>a[ri(0,a.length-1)];
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=ri(0,i);[a[i],a[j]]=[a[j],a[i]]}return a};
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');
+function parse(s){
+  s=String(s==null?'':s).replace(/[€\s]/g,'');
+  if(s==='')return NaN;
+  if(s.includes(','))s=s.replace(/\./g,'').replace(',','.');
+  else if(/^\d{1,3}(\.\d{3})+$/.test(s))s=s.replace(/\./g,'');
+  const v=Number(s);
+  return isFinite(v)?v:NaN;
+}
+
+/* ---------- Kontenplan ---------- */
+const KONTEN=[
+  ['2400','FO','Forderungen aus Lieferungen und Leistungen'],
+  ['2600','VORST','Vorsteuer'],
+  ['2800','BK','Bank'],
+  ['2880','KA','Kasse'],
+  ['4400','VE','Verbindlichkeiten aus Lieferungen und Leistungen'],
+  ['4800','UST','Umsatzsteuer'],
+  ['5000','UEFE','Umsatzerlöse für eigene Erzeugnisse'],
+  ['6000','AWR','Aufwendungen für Rohstoffe'],
+  ['6001','BZKR','Bezugskosten für Rohstoffe'],
+  ['6002','NR','Nachlässe für Rohstoffe'],
+  ['6010','AWF','Aufwendungen für Fremdbauteile'],
+  ['6011','BZKF','Bezugskosten für Fremdbauteile'],
+  ['6012','NF','Nachlässe für Fremdbauteile'],
+  ['6020','AWH','Aufwendungen für Hilfsstoffe'],
+  ['6021','BZKH','Bezugskosten für Hilfsstoffe'],
+  ['6022','NH','Nachlässe für Hilfsstoffe'],
+  ['6030','AWB','Aufwendungen für Betriebsstoffe'],
+  ['6031','BZKB','Bezugskosten für Betriebsstoffe'],
+  ['6032','NB','Nachlässe für Betriebsstoffe'],
+  ['6040','AWVM','Aufwendungen für Verpackungsmaterial'],
+  ['6140','AFR','Ausgangsfrachten']
+];
+const KN=Object.fromEntries(KONTEN.map(k=>[k[0],k]));
+const kl=k=>k+' '+KN[k][1];
+
+/* ---------- Stoffarten und Zufallsdaten ---------- */
+const ARTEN=[
+  {art:'Rohstoffe',ka:'6000',kb:'6001',kn:'6002'},
+  {art:'Fremdbauteile',ka:'6010',kb:'6011',kn:'6012'},
+  {art:'Hilfsstoffe',ka:'6020',kb:'6021',kn:'6022'},
+  {art:'Betriebsstoffe',ka:'6030',kb:'6031',kn:'6032'}
+];
+const ARTNAMEN=ARTEN.map(a=>a.art);
+const SPED=['Spedition Frankl & Söhne','Transport Brandl GmbH','Logistik Haberl KG','Frachtdienst Moosbauer GmbH'];
+const ORTE=['Regensburg','Passau','Nürnberg','Ingolstadt','Hof','Augsburg'];
+const ROH=[
+  {a:0,l:['Metallhandel Kraus KG','Stahlwerke Obermaier GmbH'],n:'Stahlblech',e:'Tafeln',p:[38,95],m:[40,150]},
+  {a:0,l:['Kunststoff Wiesner GmbH','Polymer Aigner KG'],n:'Kunststoffgranulat',e:'Säcke',p:[24,68],m:[60,300]},
+  {a:0,l:['Textilgroßhandel Reiter OHG','Stoffe Lechner GmbH'],n:'Baumwollstoff',e:'Ballen',p:[85,190],m:[10,60]},
+  {a:0,l:['Holzwerke Bergmann GmbH','Sägewerk Huber e. K.'],n:'Eichenholz',e:'m³',p:[310,620],m:[8,40]},
+  {a:0,l:['Lederhandel Pichler e. K.','Gerberei Strobl GmbH'],n:'Leder',e:'Häute',p:[55,130],m:[20,90]},
+  {a:1,l:['Antriebstechnik Maier GmbH','Elektro Zeller KG'],n:'Elektromotoren',e:'Stück',p:[90,240],m:[20,80]},
+  {a:1,l:['Wälzlager Kofler GmbH'],n:'Kugellager',e:'Stück',p:[6,25],m:[200,800]},
+  {a:2,l:['Klebstoffe Dorner GmbH'],n:'Holzleim',e:'Eimer',p:[28,70],m:[20,90]},
+  {a:2,l:['Farben Gruber KG'],n:'Lack',e:'Dosen',p:[18,55],m:[40,200]},
+  {a:2,l:['Schraubenhandel Wimmer e. K.'],n:'Schrauben',e:'Kartons',p:[12,40],m:[50,200]},
+  {a:3,l:['Mineralöle Brandstetter GmbH'],n:'Schmieröl',e:'Fässer',p:[120,310],m:[4,20]},
+  {a:3,l:['Ölhandel Kerschbaum KG'],n:'Hydrauliköl',e:'Kanister',p:[35,95],m:[20,80]}
+];
+function basis(){
+  const r=pick(ROH),a=ARTEN[r.a];
+  return {l:pick(r.l),r,art:a.art,ka:a.ka,kb:a.kb,kn:a.kn,m:ri(r.m[0],r.m[1]),pr:ri(r.p[0]*100,r.p[1]*100)/100,nr:'RE-'+ri(20310,20990),dat:ri(1,28)+'.10.2026'};
+}
+const ust=n=>r2(n*0.19);
+
+/* ---------- Aufgaben-Bausteine ---------- */
+const S=(k,opts,ans,h)=>({k,opts:shuffle(opts),ans,h});
+const bsatz=(soll,haben)=>{
+  const side=(arr,lab)=>`<div><div class="side-lab">${lab}</div>${arr.map(e=>`<div class="bs-line"><span>${kl(e.k)}</span><b>${eur(e.b)}</b></div>`).join('')}</div>`;
+  return `<div class="bs">${side(soll,'Soll')}<div class="bs-an">an</div>${side(haben,'Haben')}</div>`;
+};
+const beleg=(p,von,nr,datum,zeilen,ans)=>({type:'beleg',title:'Beleg vervollständigen',intro:'Die Rechnung ist unvollständig. Rechne mit dem Taschenrechner und trage die fehlenden Beträge ein.',von,nr,datum,zeilen,ans});
+const buchung=(fall,soll,haben,hint)=>({type:'buchung',title:'Buchungssatz bilden',fall,soll,haben,hint});
+const satzIntro='Lies den Buchungssatz und vervollständige den Satz zum Geschäftsfall.';
+
+/* ---------- Themen ---------- */
+const THEMEN=[
+{
+  id:'bezugskosten',title:'Was sind Bezugskosten?',kurz:'Begriffe klären und zuordnen',
+  merke:p=>`<mark>Merke</mark><p>Bezugskosten sind Kosten, die entstehen, bis das Material bei uns im Betrieb ankommt. Dazu zählen Fracht, Rollgeld, Transportversicherung, Verpackung der Lieferung und Zoll. Sie machen den Einkauf teurer und werden auf einem eigenen Konto gebucht.</p><p>Jede Stoffart hat ihr Konto für Bezugskosten. Rohstoffe <b>6001 BZKR</b>, Fremdbauteile <b>6011 BZKF</b>, Hilfsstoffe <b>6021 BZKH</b>, Betriebsstoffe <b>6031 BZKB</b>.</p>`,
+  gen:()=>{const a=pick(ARTEN);const o=pick(ARTEN.filter(x=>x!==a));return {...a,o}},
+  tasks:p=>[
+    {type:'zuordnung',title:'Zuordnungsspiel',intro:'Tippe eine Karte an und danach das passende Feld. Gehört der Posten zu den Bezugskosten?',
+     items:[
+      {t:'Fracht, die der Lieferer für die Lieferung berechnet',bz:true,h:'Fracht gehört zu den Bezugskosten.'},
+      {t:'Rollgeld für die Anfuhr vom Bahnhof in unseren Betrieb',bz:true,h:'Rollgeld ist ein Teil des Transports zu uns, also Bezugskosten.'},
+      {t:'Transportversicherung für die eingehende Lieferung',bz:true,h:'Die Versicherung schützt das Material auf dem Weg zu uns, das sind Bezugskosten.'},
+      {t:'Verpackungskosten, die der Lieferer für die gelieferte Ware berechnet',bz:true,h:'Verpackung der gelieferten Ware zählt zu den Bezugskosten.'},
+      {t:'Zoll für eingeführtes Material',bz:true,h:'Zoll fällt beim Beschaffen an und gehört zu den Bezugskosten.'},
+      {t:'Rechnung der Spedition für die Anlieferung des Materials',bz:true,h:'Die Anlieferung des Materials ist ein Bezugskosten-Posten.'},
+      {t:'Ausgangsfracht für den Versand fertiger Erzeugnisse an die Kundschaft',bz:false,h:'Das sind Kosten beim Verkauf. Sie werden auf 6140 AFR gebucht.'},
+      {t:'Kartons, in denen wir unsere eigenen Erzeugnisse verpacken',bz:false,h:'Verpackungsmaterial für eigene Erzeugnisse wird auf 6040 AWVM gebucht.'},
+      {t:'Anzeige in der Tageszeitung',bz:false,h:'Werbung hat mit dem Einkauf des Materials nichts zu tun. Konto 6870 WER.'},
+      {t:'Miete für die Lagerhalle',bz:false,h:'Mieten werden auf 6700 AWMP gebucht.'},
+      {t:'Büromaterial, zum Beispiel Druckerpapier',bz:false,h:'Büromaterial gehört auf 6800 BMK.'},
+      {t:'Löhne der Beschäftigten im Lager',bz:false,h:'Löhne werden auf 6200 LG gebucht.'}
+     ]},
+    {type:'mc',title:'Wissen prüfen',q:`Auf welchem Konto buchst du Bezugskosten für ${p.art}?`,
+     opts:[
+      {t:kl(p.ka),why:'Das ist das Konto für den Warenwert selbst.'},
+      {t:kl(p.kb),ok:true},
+      {t:kl(p.kn),why:'Hier stehen Nachlässe, die den Einkauf billiger machen.'},
+      {t:kl(p.o.kb),why:`Das ist das Konto für Bezugskosten bei ${p.o.art}.`}
+     ],expl:`Bezugskosten für ${p.art} stehen auf ${kl(p.kb)}.`},
+    {type:'mc',title:'Wissen prüfen',q:'Wie wirken Bezugskosten auf das, was wir für das Material insgesamt zahlen?',
+     opts:[
+      {t:'Sie erhöhen den Betrag.',ok:true},
+      {t:'Sie senken den Betrag.',why:'Das würden Rabatte oder Nachlässe tun.'},
+      {t:'Sie ändern den Betrag nicht.',why:'Fracht und Verpackung bezahlen wir zusätzlich, der Einkauf wird also teurer.'}
+     ],expl:'Bezugskosten kommen zum Warenwert dazu und erhöhen die Anschaffungskosten.'}
+  ]
+},
+{
+  id:'einkauf',title:'Einkauf auf Ziel',kurz:'Eingangsrechnung und Zahlung',
+  merke:p=>`<mark>Merke</mark><p>Wir kaufen ${p.art} auf Ziel. Der Nettobetrag kommt ins Soll auf <b>${kl(p.ka)}</b>. Die Umsatzsteuer des Lieferers ist für uns Vorsteuer und steht ebenfalls im Soll auf <b>2600 VORST</b>. Den Rechnungsbetrag schulden wir dem Lieferer, er steht im Haben auf <b>4400 VE</b>.</p><p>Das Aufwandskonto hängt von der Stoffart ab. Rohstoffe 6000, Fremdbauteile 6010, Hilfsstoffe 6020, Betriebsstoffe 6030.</p>`,
+  gen:()=>{const p=basis();p.net=r2(p.m*p.pr);p.ust=ust(p.net);p.brutto=r2(p.net+p.ust);return p},
+  tasks:p=>[
+    beleg(p,p.l,p.nr,p.dat,[
+      {l:`${p.m} ${p.r.e} ${p.r.n} zu je ${eur(p.pr)} netto`},
+      {l:'Warenwert netto',in:'a'},
+      {l:'zuzüglich 19 % Umsatzsteuer',in:'b'},
+      {l:'Rechnungsbetrag',in:'c',sum:true}
+    ],{a:{v:p.net,h:'Rechne Menge mal Einzelpreis.'},b:{v:p.ust,h:'19 % vom Nettobetrag, also Nettobetrag mal 0,19.'},c:{v:p.brutto,h:'Nettobetrag plus Umsatzsteuer.'}}),
+    buchung(`Wir erhalten die Eingangsrechnung von ${p.l} über ${p.r.n} (${p.art}). Warenwert ${eur(p.net)} netto, dazu ${eur(p.ust)} Umsatzsteuer, Rechnungsbetrag ${eur(p.brutto)}. Die Rechnung wird später bezahlt.`,
+      [{k:p.ka,b:p.net,h:`Hier steht der Nettobetrag der ${p.art}.`},{k:'2600',b:p.ust,h:'Das ist die Umsatzsteuer aus der Rechnung.'}],
+      [{k:'4400',b:p.brutto,h:'Das ist der Rechnungsbetrag, den wir schulden.'}],
+      `Aufwand und Vorsteuer stehen im Soll, die Schuld beim Lieferer steht im Haben. Für ${p.art} gilt das Konto ${kl(p.ka)}.`),
+    buchung(`Wir überweisen den Rechnungsbetrag von ${eur(p.brutto)} von unserem Bankkonto an ${p.l}.`,
+      [{k:'4400',b:p.brutto,h:'Die Schuld wird getilgt, der ganze Rechnungsbetrag.'}],
+      [{k:'2800',b:p.brutto,h:'Das Geld verlässt das Bankkonto.'}],
+      'Die Verbindlichkeit sinkt, dafür steht 4400 VE im Soll. Das Bankkonto nimmt ab, es steht im Haben.'),
+    {type:'satz',title:'Geschäftsfall formulieren',intro:satzIntro,
+     buch:{soll:[{k:p.ka,b:p.net},{k:'2600',b:p.ust}],haben:[{k:'4400',b:p.brutto}]},
+     parts:['Wir erhalten eine ',S('a',['Eingangsrechnung','Ausgangsrechnung','Quittung'],'Eingangsrechnung','Wir sind die Käufer, die Rechnung kommt bei uns herein.'),
+       ' für ',S('b',ARTNAMEN,p.art,`${kl(p.ka)} ist das Aufwandskonto für ${p.art}.`),
+       ' und bezahlen ',S('c',['später','sofort bar','sofort per Bank'],'später','Die Schuld steht auf 4400 VE. Wir haben also noch nicht bezahlt.'),'.']}
+  ]
+},
+{
+  id:'rabatt',title:'Einkauf mit Rabatt',kurz:'Preisabzug schon in der Rechnung',
+  merke:p=>`<mark>Merke</mark><p>Gewährt der Lieferer einen Rabatt, steht der Abzug schon auf der Rechnung. Ein solcher Rabatt wird nicht gebucht. Du buchst nur den Betrag, der nach dem Rabatt übrig bleibt, auf dem Aufwandskonto der Stoffart. Auch die Umsatzsteuer wird vom Betrag nach Rabatt berechnet.</p>`,
+  gen:()=>{const p=basis();p.list=r2(p.m*p.pr);p.pct=pick([10,12,15,20,25]);p.rab=r2(p.list*p.pct/100);p.net=r2(p.list-p.rab);p.ust=ust(p.net);p.brutto=r2(p.net+p.ust);return p},
+  tasks:p=>[
+    beleg(p,p.l,p.nr,p.dat,[
+      {l:`${p.m} ${p.r.e} ${p.r.n} zu je ${eur(p.pr)} netto`},
+      {l:'Listenpreis netto',in:'a'},
+      {l:`abzüglich ${p.pct} % Rabatt`,in:'b'},
+      {l:'Warenwert nach Rabatt',in:'c'},
+      {l:'zuzüglich 19 % Umsatzsteuer',in:'d'},
+      {l:'Rechnungsbetrag',in:'e',sum:true}
+    ],{a:{v:p.list,h:'Rechne Menge mal Einzelpreis.'},b:{v:p.rab,h:`${p.pct} % vom Listenpreis.`},c:{v:p.net,h:'Listenpreis minus Rabatt.'},d:{v:p.ust,h:'19 % vom Warenwert nach Rabatt, nicht vom Listenpreis.'},e:{v:p.brutto,h:'Warenwert nach Rabatt plus Umsatzsteuer.'}}),
+    buchung(`Eingangsrechnung von ${p.l} über ${p.r.n} (${p.art}). Listenpreis ${eur(p.list)} netto, abzüglich ${p.pct} % Rabatt, dazu 19 % Umsatzsteuer. Der Rechnungsbetrag von ${eur(p.brutto)} wird später bezahlt.`,
+      [{k:p.ka,b:p.net,h:'Gebucht wird der Betrag nach Abzug des Rabatts.'},{k:'2600',b:p.ust,h:'Die Umsatzsteuer wurde vom Betrag nach Rabatt berechnet.'}],
+      [{k:'4400',b:p.brutto,h:'Das ist der Rechnungsbetrag, den wir zahlen müssen.'}],
+      `Der Rabatt bekommt kein eigenes Konto. Für ${p.art} gilt das Konto ${kl(p.ka)}.`),
+    {type:'mc',title:'Wissen prüfen',q:'Wie gehst du mit einem Rabatt um, der auf der Rechnung schon abgezogen ist?',
+     opts:[
+      {t:'Er wird nicht gebucht, es zählt der Betrag nach Rabatt.',ok:true},
+      {t:`Ich buche ihn im Haben auf ${kl(p.kn)}.`,why:'Der Rabatt ist schon vom Preis abgezogen. Eine zusätzliche Buchung würde ihn doppelt berücksichtigen.'},
+      {t:`Ich buche den Listenpreis im Soll auf ${kl(p.ka)}.`,why:'Dann wäre der Aufwand zu hoch. Der Rabatt senkt ihn bereits.'},
+      {t:`Ich buche ihn im Soll auf ${kl(p.kb)}.`,why:'Das ist ein Konto für Bezugskosten. Ein Rabatt ist das Gegenteil davon.'}
+     ],expl:'Rabatte auf der Rechnung werden nicht gebucht. Die Buchung beginnt beim Betrag nach Rabatt.'},
+    {type:'satz',title:'Geschäftsfall formulieren',intro:satzIntro,
+     buch:{soll:[{k:p.ka,b:p.net},{k:'2600',b:p.ust}],haben:[{k:'4400',b:p.brutto}]},
+     parts:['Wir erhalten eine ',S('a',['Eingangsrechnung','Ausgangsrechnung','Gutschrift'],'Eingangsrechnung','Wir kaufen ein, die Rechnung kommt bei uns herein.'),
+       ' für ',S('b',ARTNAMEN,p.art,`${kl(p.ka)} ist das Aufwandskonto für ${p.art}.`),
+       '. Der Rabatt ist ',S('c',['schon abgezogen','noch nicht abgezogen'],'schon abgezogen','Im Buchungssatz steht nur ein Betrag. Der Rabatt ist also schon abgezogen.'),
+       ', deshalb wird er ',S('d',['nicht gebucht',`auf ${kl(p.kn)} gebucht`,`auf ${kl(p.ka)} gebucht`],'nicht gebucht','Ein Rabatt auf der Rechnung bekommt keine eigene Buchung.'),'.']}
+  ]
+},
+{
+  id:'mitbezugskosten',title:'Einkauf mit Bezugskosten',kurz:'Fracht und Verpackung auf der Rechnung',
+  merke:p=>`<mark>Merke</mark><p>Berechnet der Lieferer Fracht und Verpackung auf seiner Rechnung, buchst du sie getrennt vom Warenwert. Der Warenwert kommt auf <b>${kl(p.ka)}</b>, die Bezugskosten zusammen auf <b>${kl(p.kb)}</b>. Die Vorsteuer wird vom Gesamtbetrag aus Warenwert und Bezugskosten berechnet.</p>`,
+  gen:()=>{const p=basis();p.wv=r2(p.m*p.pr);p.fr=ri(9000,32000)/100;p.vp=ri(1500,8500)/100;p.bk=r2(p.fr+p.vp);p.sum=r2(p.wv+p.bk);p.ust=ust(p.sum);p.brutto=r2(p.sum+p.ust);return p},
+  tasks:p=>[
+    beleg(p,p.l,p.nr,p.dat,[
+      {l:`${p.m} ${p.r.e} ${p.r.n} zu je ${eur(p.pr)} netto`},
+      {l:`Fracht ${eur(p.fr)} netto, Verpackung ${eur(p.vp)} netto`},
+      {l:'Warenwert netto',in:'a'},
+      {l:'Summe aller Positionen netto',in:'b'},
+      {l:'zuzüglich 19 % Umsatzsteuer',in:'c'},
+      {l:'Rechnungsbetrag',in:'d',sum:true}
+    ],{a:{v:p.wv,h:'Rechne Menge mal Einzelpreis. Fracht und Verpackung kommen erst in der nächsten Zeile dazu.'},b:{v:p.sum,h:'Warenwert plus Fracht plus Verpackung.'},c:{v:p.ust,h:'19 % von der Summe aller Positionen. Auch Fracht und Verpackung sind umsatzsteuerpflichtig.'},d:{v:p.brutto,h:'Summe netto plus Umsatzsteuer.'}}),
+    buchung(`Eingangsrechnung von ${p.l} über ${p.r.n} (${p.art}). Warenwert ${eur(p.wv)} netto, Fracht ${eur(p.fr)} netto, Verpackung ${eur(p.vp)} netto, dazu ${eur(p.ust)} Umsatzsteuer. Rechnungsbetrag ${eur(p.brutto)}, zahlbar später.`,
+      [{k:p.ka,b:p.wv,h:'Hier steht nur der Warenwert.'},{k:p.kb,b:p.bk,h:'Fasse Fracht und Verpackung zu einem Betrag zusammen.'},{k:'2600',b:p.ust,h:'Die Umsatzsteuer aus der Rechnung.'}],
+      [{k:'4400',b:p.brutto,h:'Das ist der Rechnungsbetrag, den wir schulden.'}],
+      `Fracht und Verpackung sind beide Bezugskosten und stehen zusammen auf einem Konto. Für ${p.art} sind das ${kl(p.ka)} und ${kl(p.kb)}.`),
+    {type:'mc',title:'Wissen prüfen',q:'Von welchem Betrag wird die Vorsteuer berechnet?',
+     opts:[
+      {t:'Nur vom Warenwert.',why:'Auch Fracht und Verpackung sind mit Umsatzsteuer belegt.'},
+      {t:'Vom Warenwert und den Bezugskosten zusammen.',ok:true},
+      {t:'Vom Rechnungsbetrag.',why:'Der Rechnungsbetrag enthält die Umsatzsteuer schon. Die Rechnung beginnt beim Nettobetrag.'}
+     ],expl:'Die Vorsteuer bezieht sich auf alle Nettopositionen der Rechnung.'},
+    {type:'satz',title:'Geschäftsfall formulieren',intro:satzIntro,
+     buch:{soll:[{k:p.ka,b:p.wv},{k:p.kb,b:p.bk},{k:'2600',b:p.ust}],haben:[{k:'4400',b:p.brutto}]},
+     parts:['Wir erhalten die ',S('a',['Eingangsrechnung','Ausgangsrechnung'],'Eingangsrechnung','Wir sind die Käufer.'),
+       ' eines Lieferers für ',S('b',ARTNAMEN,p.art,`Der Warenwert steht auf ${kl(p.ka)}, dem Konto für ${p.art}.`),
+       ' einschließlich ',S('c',['Fracht und Verpackung','Werbung und Miete','Ausgangsfracht'],'Fracht und Verpackung',`Auf ${kl(p.kb)} stehen Fracht und Verpackung der Lieferung.`),
+       '. Diese Kosten heißen ',S('d',['Bezugskosten','Nachlässe','Ausgangsfrachten'],'Bezugskosten','Kosten beim Beschaffen des Materials heißen Bezugskosten.'),
+       '. Bezahlt wird ',S('e',['später','sofort bar'],'später','Die Schuld steht auf 4400 VE.'),'.']}
+  ]
+},
+{
+  id:'spedition',title:'Rechnung der Spedition',kurz:'Transport getrennt abgerechnet',
+  merke:p=>`<mark>Merke</mark><p>Liefert eine Spedition das Material an, schickt sie eine eigene Eingangsrechnung. Ihr Nettobetrag sind Bezugskosten und kommen auf <b>${kl(p.kb)}</b>. Die Umsatzsteuer der Spedition ist Vorsteuer auf <b>2600 VORST</b>. Die Schuld bei der Spedition steht wie beim Lieferer im Haben auf <b>4400 VE</b>.</p>`,
+  gen:()=>{
+    const p=basis();p.wv=r2(p.m*p.pr);p.wust=ust(p.wv);p.wbr=r2(p.wv+p.wust);
+    p.sp=pick(SPED);p.ort=pick(ORTE);p.snr='SP-'+ri(4410,4990);p.tr=ri(15000,60000)/100;p.zu=ri(1200,6500)/100;
+    p.sn=r2(p.tr+p.zu);p.sust=ust(p.sn);p.sbr=r2(p.sn+p.sust);return p},
+  tasks:p=>[
+    beleg(p,p.sp,p.snr,p.dat,[
+      {l:`Transport von ${p.ort} zu Ihrem Betrieb ${eur(p.tr)} netto`},
+      {l:`Maut und Treibstoffzuschlag ${eur(p.zu)} netto`},
+      {l:'Summe netto',in:'a'},
+      {l:'zuzüglich 19 % Umsatzsteuer',in:'b'},
+      {l:'Rechnungsbetrag',in:'c',sum:true}
+    ],{a:{v:p.sn,h:'Transport plus Maut und Treibstoffzuschlag.'},b:{v:p.sust,h:'19 % von der Summe netto.'},c:{v:p.sbr,h:'Summe netto plus Umsatzsteuer.'}}),
+    buchung(`${p.sp} schickt die Eingangsrechnung für die Anlieferung der ${p.art}. Transportentgelt ${eur(p.sn)} netto, dazu ${eur(p.sust)} Umsatzsteuer, Rechnungsbetrag ${eur(p.sbr)}. Die Rechnung wird später bezahlt.`,
+      [{k:p.kb,b:p.sn,h:'Der Nettobetrag der Spedition.'},{k:'2600',b:p.sust,h:'Die Umsatzsteuer der Spedition.'}],
+      [{k:'4400',b:p.sbr,h:'Das ist der Rechnungsbetrag, den wir der Spedition schulden.'}],
+      `Die Anlieferung der ${p.art} ist ein Bezugskosten-Posten. Das Konto heißt ${kl(p.kb)}.`),
+    buchung(`${p.l} liefert ${p.r.n} (${p.art}). Warenwert ${eur(p.wv)} netto, dazu ${eur(p.wust)} Umsatzsteuer, Rechnungsbetrag ${eur(p.wbr)}. Die Rechnung wird später bezahlt.`,
+      [{k:p.ka,b:p.wv,h:`Der Warenwert der ${p.art}.`},{k:'2600',b:p.wust,h:'Die Umsatzsteuer des Lieferers.'}],
+      [{k:'4400',b:p.wbr,h:'Das ist der Rechnungsbetrag, den wir dem Lieferer schulden.'}],
+      `Das Material selbst ist Aufwand für ${p.art} und keine Bezugskosten. Das Konto heißt ${kl(p.ka)}.`),
+    buchung(`Wir überweisen ${eur(p.sbr)} von unserem Bankkonto an ${p.sp}.`,
+      [{k:'4400',b:p.sbr,h:'Die Schuld bei der Spedition wird getilgt.'}],
+      [{k:'2800',b:p.sbr,h:'Das Geld verlässt das Bankkonto.'}],
+      'Verbindlichkeit im Soll, Bank im Haben.'),
+    {type:'satz',title:'Geschäftsfall formulieren',intro:satzIntro,
+     buch:{soll:[{k:p.kb,b:p.sn},{k:'2600',b:p.sust}],haben:[{k:'4400',b:p.sbr}]},
+     parts:['Wir erhalten die ',S('a',['Eingangsrechnung','Ausgangsrechnung'],'Eingangsrechnung','Wir sind die Auftraggeber der Spedition.'),
+       ' einer ',S('b',['Spedition','Bank','Versicherung'],'Spedition',`${kl(p.kb)} ist ein Konto für Bezugskosten, dort stehen Transportkosten.`),
+       ' für die ',S('c',[`Anlieferung der ${p.art}`,'Auslieferung an die Kundschaft'],`Anlieferung der ${p.art}`,'Die Auslieferung an die Kundschaft wäre eine Ausgangsfracht auf 6140 AFR.'),
+       '. Der Betrag zählt zu den ',S('d',['Bezugskosten','Warenwerten','Ausgangsfrachten'],'Bezugskosten','Kosten für das Beschaffen des Materials sind Bezugskosten.'),
+       ' und wird ',S('e',['später','sofort bar'],'später','Die Schuld steht auf 4400 VE.'),' bezahlt.']}
+  ]
+}
+];
+
+/* ---------- Zustand ---------- */
+const S_={cur:'bezugskosten',themes:{},confirm:null};
+const MAXP=3;
+function mkState(d){
+  const b={attempts:0,done:false,pts:0,revealed:false};
+  if(d.type==='beleg')return {...b,vals:{},res:{}};
+  if(d.type==='buchung')return {...b,rows:{s0:{k:'',b:''},s1:{k:'',b:''},s2:{k:'',b:''},h0:{k:'',b:''},h1:{k:'',b:''}},res:{},msg:''};
+  if(d.type==='satz')return {...b,vals:{},res:{}};
+  if(d.type==='mc')return {...b,tried:[]};
+  if(d.type==='zuordnung')return {...b,sel:null,placed:{},errors:0,msg:'',msgCls:'',flash:null,order:shuffle(d.items.map((_,i)=>i))};
+}
+function buildTheme(th){
+  const p=th.gen();
+  const tasks=th.tasks(p).map(d=>{
+    if(d.type==='mc')d.opts=shuffle(d.opts);
+    return {def:d,st:mkState(d)};
+  });
+  S_.themes[th.id]={p,tasks};
+}
+function attempt(st,ok){
+  st.attempts++;
+  if(ok){st.done=true;st.pts=Math.max(1,MAXP+1-st.attempts);}
+  else if(st.attempts>=3){st.done=true;st.revealed=true;st.pts=0;}
+}
+const themeOf=id=>THEMEN.find(t=>t.id===id);
+
+/* ---------- Prüfen ---------- */
+const C={};
+C.beleg=t=>{
+  const d=t.def,st=t.st;let all=true;st.res={};
+  Object.keys(d.ans).forEach(k=>{
+    const v=parse(st.vals[k]);const ok=!isNaN(v)&&Math.abs(v-d.ans[k].v)<0.005;
+    st.res[k]=ok;if(!ok)all=false;
+  });
+  attempt(st,all);
+};
+C.buchung=t=>{
+  const d=t.def,st=t.st;let all=true;st.res={};const msgs=[];
+  const sums={s:0,h:0};
+  [['s',d.soll,d.haben,3,'Soll'],['h',d.haben,d.soll,2,'Haben']].forEach(([side,expRaw,otherRaw,n,lab])=>{
+    const exp=expRaw.map(e=>({...e,matched:false,touched:false}));
+    const rows=[];
+    for(let i=0;i<n;i++){const id=side+i,r=st.rows[id];if(r.k||String(r.b).trim()!=='')rows.push({id,k:r.k,b:parse(r.b),raw:r.b});}
+    rows.forEach(r=>{if(!isNaN(r.b))sums[side]+=r.b;});
+    rows.forEach(r=>{
+      const m=exp.find(e=>!e.matched&&e.k===r.k&&Math.abs(e.b-r.b)<0.005);
+      if(m){m.matched=true;r.ok=true;st.res[r.id]={cls:'ok',msg:''};}
+    });
+    rows.filter(r=>!r.ok).forEach(r=>{
+      all=false;let msg;
+      const e=exp.find(x=>!x.matched&&!x.touched&&x.k===r.k);
+      if(!r.k)msg='Wähle ein Konto aus.';
+      else if(e){e.touched=true;msg=isNaN(r.b)?'Das Konto stimmt. Trage noch einen Betrag ein.':'Das Konto stimmt, der Betrag nicht. '+e.h;}
+      else if(otherRaw.some(o=>o.k===r.k))msg='Dieses Konto gehört auf die andere Seite.';
+      else msg='Dieses Konto passt hier nicht.';
+      st.res[r.id]={cls:'bad',msg};
+    });
+    if(exp.some(e=>!e.matched&&!e.touched)){all=false;msgs.push(`Auf der ${lab}-Seite fehlt noch ein Konto.`);}
+  });
+  if(Math.abs(sums.s-sums.h)>0.005&&(sums.s>0||sums.h>0))msgs.unshift('Soll und Haben müssen gleich groß sein.');
+  const nextAttempt=st.attempts+1;
+  if(!all&&nextAttempt>=2&&d.hint)msgs.push(d.hint);
+  if(!all&&!msgs.length&&!Object.keys(st.res).length)msgs.push('Trage mindestens ein Konto mit Betrag ein.');
+  st.msg=all?'':msgs.join(' ');
+  attempt(st,all);
+};
+C.satz=t=>{
+  const d=t.def,st=t.st;let all=true;st.res={};
+  d.parts.filter(x=>typeof x==='object').forEach(s=>{
+    const ok=st.vals[s.k]===s.ans;st.res[s.k]=ok;if(!ok)all=false;
+  });
+  attempt(st,all);
+};
+
+/* ---------- Anzeigen ---------- */
+const R={};
+const result=st=>st.done?(st.revealed
+  ?`<div class="result rev">Lösung angezeigt, 0 Punkte. Mit neuen Zahlen kannst du die Aufgabe wiederholen.</div>`
+  :`<div class="result ok">Richtig, ${st.pts} von ${MAXP} Punkten.</div>`):'';
+const bar=st=>st.done?'':`<div class="bar"><button class="btn" data-act="check">Prüfen</button>${st.attempts>=2?'<button class="btn ghost" data-act="reveal">Lösung anzeigen</button>':''}</div>`;
+
+R.beleg=t=>{
+  const d=t.def,st=t.st;
+  const rows=d.zeilen.map(z=>{
+    if(!z.in)return `<tr class="info"><td colspan="2">${z.l}</td></tr>`;
+    const res=st.res[z.in];
+    const val=st.revealed?num(d.ans[z.in].v):(st.vals[z.in]??'');
+    const empty=st.vals[z.in]==null||String(st.vals[z.in]).trim()==='';
+    const cls=st.revealed?'':(res===true?'ok':res===false?'bad':'');
+    return `<tr class="${z.sum?'sum':''}"><th scope="row">${z.l}</th><td><div class="eingabe ${cls}"><input type="text" inputmode="decimal" autocomplete="off" data-k="${z.in}" aria-label="${esc(z.l)}" value="${esc(val)}" ${st.done?'disabled':''}><span>€</span></div>${res===false&&!st.revealed?`<div class="fb bad">${empty?'Hier fehlt noch ein Betrag. ':'Das stimmt noch nicht. '}${d.ans[z.in].h}</div>`:''}</td></tr>`;
+  }).join('');
+  return `<p class="intro">${d.intro}</p>
+  <div class="beleg"><div class="b-kopf"><div class="b-von">${d.von}</div><div class="b-meta">Rechnung ${d.nr}<br>${d.datum}</div></div>
+  <div class="b-an">Rechnungsempfänger: Auer Fertigung GmbH</div><table><tbody>${rows}</tbody></table></div>
+  ${bar(st)}${result(st)}`;
+};
+
+R.buchung=t=>{
+  const d=t.def,st=t.st;
+  const row=id=>{
+    const r=st.rows[id],res=st.res[id];
+    const opts='<option value="">Konto wählen</option>'+KONTEN.map(k=>`<option value="${k[0]}" ${r.k===k[0]?'selected':''}>${k[0]} ${k[1]} ${k[2]}</option>`).join('');
+    return `<div class="brow ${st.revealed?'':(res?res.cls:'')}"><select data-row="${id}" aria-label="Konto" ${st.done?'disabled':''}>${opts}</select>
+      <div class="eingabe"><input type="text" inputmode="decimal" autocomplete="off" data-row="${id}" data-f="b" aria-label="Betrag" placeholder="Betrag" value="${esc(r.b)}" ${st.done?'disabled':''}><span>€</span></div>
+      ${res&&res.msg&&!st.revealed?`<div class="fb bad">${res.msg}</div>`:''}</div>`;
+  };
+  const sol=st.revealed?`<div class="loesung"><h4>Lösung</h4>${bsatz(d.soll,d.haben)}</div>`:'';
+  return `<p class="fall">${d.fall}</p>
+  <div class="buch"><div><div class="side-lab">Soll</div>${row('s0')}${row('s1')}${row('s2')}</div>
+  <div class="an">an</div>
+  <div><div class="side-lab">Haben</div>${row('h0')}${row('h1')}</div></div>
+  ${st.msg&&!st.done?`<div class="fb bad" aria-live="polite">${st.msg}</div>`:''}
+  ${sol}${bar(st)}${result(st)}`;
+};
+
+R.satz=t=>{
+  const d=t.def,st=t.st;
+  const sentence=d.parts.map(x=>{
+    if(typeof x==='string')return esc(x);
+    if(st.revealed)return `<b>${esc(x.ans)}</b>`;
+    const res=st.res[x.k];
+    return `<select data-k="${x.k}" class="${res===true?'ok':res===false?'bad':''}" aria-label="Auswahl" ${st.done?'disabled':''}><option value="">auswählen</option>${x.opts.map(o=>`<option value="${esc(o)}" ${st.vals[x.k]===o?'selected':''}>${esc(o)}</option>`).join('')}</select>`;
+  }).join('');
+  const hints=st.revealed?'':d.parts.filter(x=>typeof x==='object'&&st.res[x.k]===false).map(x=>`<div class="fb bad">${st.vals[x.k]?x.h:'Hier fehlt noch eine Auswahl.'}</div>`).join('');
+  return `<p class="intro">${d.intro}</p>${bsatz(d.buch.soll,d.buch.haben)}
+  <p class="satz">${sentence}</p>${hints}${bar(st)}${result(st)}`;
+};
+
+R.mc=t=>{
+  const d=t.def,st=t.st;
+  const opts=d.opts.map((o,i)=>{
+    const tried=st.tried.includes(i);
+    const cls=st.done&&o.ok?'ok':tried?'bad':'';
+    return `<button class="opt ${cls}" data-act="pick" data-o="${i}" ${st.done||tried?'disabled':''}>${o.t}${tried?`<small>${o.why||''}</small>`:''}${st.done&&o.ok?`<small>${d.expl}</small>`:''}</button>`;
+  }).join('');
+  return `<p class="intro"><b>${d.q}</b></p><div class="opts">${opts}</div>${result(st)}`;
+};
+
+R.zuordnung=t=>{
+  const d=t.def,st=t.st;
+  const pool=st.order.filter(c=>!st.placed[c]).map(c=>`<button class="karte ${st.sel===c?'sel':''} ${st.flash===c?'shake':''}" data-act="card" data-c="${c}">${d.items[c].t}</button>`).join('');
+  const chips=b=>st.order.filter(c=>st.placed[c]&&d.items[c].bz===b).map(c=>`<span class="chip">${d.items[c].t}</span>`).join('');
+  return `<p class="intro">${d.intro}</p>
+  <div class="pool">${pool||'<p class="leer">Alle Karten sind zugeordnet.</p>'}</div>
+  <div class="buckets">
+    <button class="bucket" data-act="place" data-b="1" ${st.done?'disabled':''}><strong>Bezugskosten</strong><small>eigene Konten, zum Beispiel 6001 BZKR</small>${chips(true)}</button>
+    <button class="bucket" data-act="place" data-b="0" ${st.done?'disabled':''}><strong>Keine Bezugskosten</strong><small>andere Konten</small>${chips(false)}</button>
+  </div>
+  <div class="fb ${st.msgCls||''}" aria-live="polite">${st.msg||''}</div>${result(st)}`;
+};
+
+function taskHtml(t,i){
+  const st=t.st;
+  const state=st.done?(st.revealed?'<span class="t-state rev">Lösung gezeigt</span>':`<span class="t-state ok">${st.pts} von ${MAXP}</span>`):'<span class="t-state">offen</span>';
+  return `<header class="t-head"><span class="t-num">Aufgabe ${i+1}</span><h3>${t.def.title}</h3>${state}</header>${R[t.def.type](t,i)}`;
+}
+
+/* ---------- Seitenaufbau ---------- */
+const view=document.getElementById('view');
+function stats(){
+  let n=0,d=0,pts=0;
+  THEMEN.forEach(th=>S_.themes[th.id].tasks.forEach(t=>{n++;if(t.st.done)d++;pts+=t.st.pts;}));
+  return {n,d,pts,max:n*MAXP};
+}
+function renderTop(){
+  const s=stats();
+  document.getElementById('stat').innerHTML=`${s.d} von ${s.n} Aufgaben<br>${s.pts} Punkte`;
+  const pc=Math.round(100*s.d/s.n);
+  document.getElementById('pbi').style.width=pc+'%';
+  document.getElementById('pb').setAttribute('aria-valuenow',pc);
+  renderNav();
+}
+function renderNav(){
+  document.getElementById('nav').innerHTML=THEMEN.map(th=>{
+    const T=S_.themes[th.id].tasks,d=T.filter(t=>t.st.done).length;
+    return `<button class="tile" data-theme="${th.id}" aria-current="${S_.cur===th.id}"><strong>${th.title}</strong><small>${th.kurz}</small><span class="mini"><i style="width:${100*d/T.length}%"></i></span><span class="cnt">${d} von ${T.length} erledigt</span></button>`;
+  }).join('');
+}
+function renderView(){
+  const th=themeOf(S_.cur),T=S_.themes[th.id];
+  const allDone=T.tasks.every(t=>t.st.done);
+  const pts=T.tasks.reduce((a,t)=>a+t.st.pts,0);
+  const idx=THEMEN.indexOf(th),next=THEMEN[(idx+1)%THEMEN.length];
+  view.innerHTML=`<div class="th-head"><h2>${th.title}</h2><div class="merke">${th.merke(T.p)}</div></div>
+  ${T.tasks.map((t,i)=>`<article class="task" data-i="${i}">${taskHtml(t,i)}</article>`).join('')}
+  ${allDone?`<div class="fertig"><span>Thema geschafft, ${pts} von ${T.tasks.length*MAXP} Punkten.</span><button class="btn" data-go="${next.id}">Weiter zu „${next.title}“</button></div>`:''}
+  <div class="fuss"><button class="btn ghost" data-act="renew">${S_.confirm===th.id?'Wirklich neu starten?':(th.id==='bezugskosten'?'Karten neu mischen':'Neue Zahlen, Thema neu starten')}</button></div>`;
+}
+function renderCard(i){
+  const T=S_.themes[S_.cur];
+  const el=view.querySelector(`.task[data-i="${i}"]`);
+  el.innerHTML=taskHtml(T.tasks[i],i);
+  renderTop();
+  if(T.tasks.every(t=>t.st.done))renderView();
+}
+function renderKp(){
+  document.getElementById('kptab').innerHTML='<thead><tr><th>Nr.</th><th>Kürzel</th><th>Konto</th></tr></thead><tbody>'+KONTEN.map(k=>`<tr><td>${k[0]}</td><td>${k[1]}</td><td>${k[2]}</td></tr>`).join('')+'</tbody>';
+}
+function go(id){
+  S_.cur=id;S_.confirm=null;renderTop();renderView();
+}
+
+/* ---------- Ereignisse ---------- */
+const A={};
+A.beleg={check:t=>C.beleg(t),reveal:t=>{t.st.revealed=true;t.st.done=true;t.st.pts=0;t.st.res={};}};
+A.buchung={check:t=>C.buchung(t),reveal:t=>{t.st.revealed=true;t.st.done=true;t.st.pts=0;t.st.res={};t.st.msg='';}};
+A.satz={check:t=>C.satz(t),reveal:t=>{t.st.revealed=true;t.st.done=true;t.st.pts=0;t.st.res={};}};
+A.mc={pick:(t,el)=>{
+  const i=+el.dataset.o,st=t.st,o=t.def.opts[i];
+  if(o.ok){st.attempts++;st.done=true;st.pts=Math.max(1,MAXP+1-st.attempts);}
+  else{st.attempts++;st.tried.push(i);}
+}};
+A.zuordnung={
+  card:(t,el)=>{const st=t.st;if(st.done)return;st.sel=+el.dataset.c;st.msg='';st.msgCls='';st.flash=null;},
+  place:(t,el)=>{
+    const st=t.st,d=t.def;
+    if(st.sel==null){st.msg='Tippe zuerst eine Karte an.';st.msgCls='bad';return;}
+    const c=st.sel,b=el.dataset.b==='1';
+    if(d.items[c].bz===b){
+      st.placed[c]=true;st.sel=null;st.flash=null;st.msg='Richtig. '+d.items[c].h;st.msgCls='ok';
+      if(Object.keys(st.placed).length===d.items.length){st.done=true;st.pts=st.errors<=1?3:st.errors<=3?2:1;}
+    }else{
+      st.errors++;st.flash=c;st.msg='Das passt nicht. '+d.items[c].h;st.msgCls='bad';
+    }
+  }
+};
+
+view.addEventListener('click',e=>{
+  const goBtn=e.target.closest('[data-go]');
+  if(goBtn){go(goBtn.dataset.go);return;}
+  const actEl=e.target.closest('[data-act]');
+  if(!actEl)return;
+  if(actEl.dataset.act==='renew'){
+    if(S_.confirm===S_.cur){buildTheme(themeOf(S_.cur));S_.confirm=null;renderTop();renderView();}
+    else{S_.confirm=S_.cur;actEl.textContent='Wirklich neu starten?';}
+    return;
+  }
+  const card=e.target.closest('.task');if(!card)return;
+  const i=+card.dataset.i,t=S_.themes[S_.cur].tasks[i];
+  const fn=A[t.def.type][actEl.dataset.act];
+  if(fn){fn(t,actEl);renderCard(i);}
+});
+view.addEventListener('input',e=>{
+  const card=e.target.closest('.task');if(!card)return;
+  const t=S_.themes[S_.cur].tasks[+card.dataset.i];
+  if(t.def.type==='beleg'&&e.target.dataset.k)t.st.vals[e.target.dataset.k]=e.target.value;
+  if(t.def.type==='buchung'&&e.target.dataset.f==='b')t.st.rows[e.target.dataset.row].b=e.target.value;
+});
+view.addEventListener('change',e=>{
+  const card=e.target.closest('.task');if(!card)return;
+  const t=S_.themes[S_.cur].tasks[+card.dataset.i];
+  if(t.def.type==='buchung'&&e.target.dataset.row&&e.target.tagName==='SELECT')t.st.rows[e.target.dataset.row].k=e.target.value;
+  if(t.def.type==='satz'&&e.target.dataset.k)t.st.vals[e.target.dataset.k]=e.target.value;
+});
+document.getElementById('nav').addEventListener('click',e=>{
+  const b=e.target.closest('[data-theme]');if(b){go(b.dataset.theme);view.scrollIntoView({block:'start'});}
+});
+let resetArmed=false;
+document.getElementById('resetAll').addEventListener('click',e=>{
+  if(!resetArmed){resetArmed=true;e.target.textContent='Wirklich alles zurücksetzen?';return;}
+  resetArmed=false;e.target.textContent='Alles zurücksetzen';
+  THEMEN.forEach(buildTheme);S_.confirm=null;renderTop();renderView();
+});
+
+/* ---------- Start ---------- */
+THEMEN.forEach(buildTheme);
+renderKp();
+const h=(typeof location!=='undefined'&&location.hash||'').replace('#','');
+if(THEMEN.some(t=>t.id===h))S_.cur=h;
+renderTop();renderView();
+</script>
+
+</body>
+</html>
