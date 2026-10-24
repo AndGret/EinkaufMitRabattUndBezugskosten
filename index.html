@@ -170,6 +170,22 @@ h2{font-size:25px}
 .fertig{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok);border-radius:6px;padding:14px 18px;margin-bottom:18px;display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;font-weight:600}
 .fuss{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
 .fuss .btn{font-weight:600}
+
+/* Unternehmen */
+details.firma{background:var(--paper);border:1px solid var(--line);border-radius:6px;margin-top:16px}
+details.firma summary{padding:12px 16px;cursor:pointer;font-family:var(--f-head);font-weight:700;font-size:18px;min-height:44px;display:flex;align-items:center}
+.firma-body{padding:0 16px 16px;display:grid;gap:16px;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr)}
+@media (max-width:760px){.firma-body{grid-template-columns:minmax(0,1fr)}}
+.firma dl{margin:0;display:grid;grid-template-columns:auto minmax(0,1fr);gap:6px 14px;font-size:16px}
+.firma dt{font-weight:600;color:var(--muted)}
+.firma dd{margin:0}
+.firma h3{font-size:16px;margin-bottom:8px}
+.stoffe{border-collapse:collapse;width:100%;font-size:15px}
+.stoffe th,.stoffe td{padding:6px 8px;border-bottom:1px dotted var(--line);text-align:left;vertical-align:top}
+.stoffe td:first-child{font-weight:600;white-space:nowrap}
+.stoffe small{display:block;color:var(--muted);font-size:13px;line-height:1.3;font-weight:400;white-space:normal}
+.stoffe .kto{font-family:var(--f-mono);font-size:13px;white-space:nowrap}
+.firma .tw{overflow-x:auto}
 </style>
 </head>
 <body>
@@ -181,12 +197,41 @@ h2{font-size:25px}
       <div>
         <div class="eyebrow">BWR Jahrgangsstufe 8</div>
         <h1>Einkaufstraining</h1>
-        <p class="sub">Material einkaufen und buchen. Wähle ein Thema und bearbeite die Aufgaben der Reihe nach. Du bekommst nach jedem Versuch eine Rückmeldung.</p>
+        <p class="sub">Werkstoffe für die Möbelfabrik Hans Glück einkaufen und buchen. Wähle ein Thema und bearbeite die Aufgaben der Reihe nach. Du bekommst nach jedem Versuch eine Rückmeldung.</p>
       </div>
       <div class="stat" id="stat" aria-live="polite"></div>
     </div>
     <div class="bar-out" role="progressbar" aria-label="Gesamtfortschritt" aria-valuemin="0" aria-valuemax="100" id="pb"><div class="bar-in" id="pbi"></div></div>
   </header>
+
+  <details class="firma" open>
+    <summary>Unser Unternehmen</summary>
+    <div class="firma-body">
+      <div>
+        <h3>Hans Glück e. K., Möbelfabrik</h3>
+        <dl>
+          <dt>Sitz</dt><dd>Rachelstraße 6-8, 93059 Regensburg</dd>
+          <dt>Inhaber</dt><dd>Hans Glück e. K.</dd>
+          <dt>Rechtsform</dt><dd>Einzelunternehmen</dd>
+          <dt>Geschäftsjahr</dt><dd>1. Januar bis 31. Dezember</dd>
+          <dt>Wir stellen her</dt><dd>Hauptwerk Regensburg: Aktenschränke, Regale, Lehrerpulte.<br>Zweigwerk Neutraubling: Schreibtische.</dd>
+          <dt>Philosophie</dt><dd>Ergonomische und ökologisch unbedenkliche Schul- und Büromöbel sind unser Ziel.</dd>
+        </dl>
+      </div>
+      <div class="tw">
+        <h3>Werkstoffe bei Hans Glück</h3>
+        <table class="stoffe">
+          <thead><tr><th>Stoffart</th><th>Das kaufen wir ein</th><th>Konto</th></tr></thead>
+          <tbody>
+            <tr><td>Rohstoffe<small>Hauptbestandteil der Möbel</small></td><td>Spanplatten, Buchenholz, Leder, Baumwollstoffe, OSB-Platten, Fichtenlatten, Kantholz</td><td class="kto">6000 AWR</td></tr>
+            <tr><td>Fremdbauteile<small>fremd gefertigt, werden eingebaut</small></td><td>Holzgriffe, Scharniere, Metallgriffe, Schrankfüße</td><td class="kto">6010 AWF</td></tr>
+            <tr><td>Hilfsstoffe<small>Nebenbestandteil der Möbel</small></td><td>Holzleim, Schrauben, Nägel, Holzfarbe, Klarlack, Nieten</td><td class="kto">6020 AWH</td></tr>
+            <tr><td>Betriebsstoffe<small>werden bei der Herstellung verbraucht</small></td><td>Schmieröl, Schleifpapier, Polierpaste, Maschinenfett, Benzin, Diesel</td><td class="kto">6030 AWB</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </details>
 
   <nav class="tiles" id="nav" aria-label="Themen"></nav>
 
@@ -259,18 +304,29 @@ const ARTNAMEN=ARTEN.map(a=>a.art);
 const SPED=['Spedition Frankl & Söhne','Transport Brandl GmbH','Logistik Haberl KG','Frachtdienst Moosbauer GmbH'];
 const ORTE=['Regensburg','Passau','Nürnberg','Ingolstadt','Hof','Augsburg'];
 const ROH=[
-  {a:0,l:['Metallhandel Kraus KG','Stahlwerke Obermaier GmbH'],n:'Stahlblech',e:'Tafeln',p:[38,95],m:[40,150]},
-  {a:0,l:['Kunststoff Wiesner GmbH','Polymer Aigner KG'],n:'Kunststoffgranulat',e:'Säcke',p:[24,68],m:[60,300]},
-  {a:0,l:['Textilgroßhandel Reiter OHG','Stoffe Lechner GmbH'],n:'Baumwollstoff',e:'Ballen',p:[85,190],m:[10,60]},
-  {a:0,l:['Holzwerke Bergmann GmbH','Sägewerk Huber e. K.'],n:'Eichenholz',e:'m³',p:[310,620],m:[8,40]},
-  {a:0,l:['Lederhandel Pichler e. K.','Gerberei Strobl GmbH'],n:'Leder',e:'Häute',p:[55,130],m:[20,90]},
-  {a:1,l:['Antriebstechnik Maier GmbH','Elektro Zeller KG'],n:'Elektromotoren',e:'Stück',p:[90,240],m:[20,80]},
-  {a:1,l:['Wälzlager Kofler GmbH'],n:'Kugellager',e:'Stück',p:[6,25],m:[200,800]},
+  {a:0,l:['Plattenhandel Reisinger KG','Holzwerke Bergmann GmbH'],n:'Spanplatten',e:'Platten',p:[18,45],m:[40,200]},
+  {a:0,l:['Sägewerk Huber e. K.'],n:'Buchenholz',e:'m³',p:[380,640],m:[8,35]},
+  {a:0,l:['Lederhandel Pichler e. K.'],n:'Leder',e:'Häute',p:[55,130],m:[20,90]},
+  {a:0,l:['Textilgroßhandel Reiter OHG'],n:'Baumwollstoffe',e:'Ballen',p:[85,190],m:[10,60]},
+  {a:0,l:['Plattenhandel Reisinger KG'],n:'OSB-Platten',e:'Platten',p:[14,38],m:[50,250]},
+  {a:0,l:['Sägewerk Huber e. K.','Holzwerke Bergmann GmbH'],n:'Fichtenlatten',e:'Bund',p:[22,60],m:[30,150]},
+  {a:0,l:['Holzwerke Bergmann GmbH'],n:'Kantholz',e:'m³',p:[290,520],m:[8,40]},
+  {a:1,l:['Beschläge Kofler GmbH'],n:'Holzgriffe',e:'Stück',p:[2,5],m:[200,800]},
+  {a:1,l:['Beschläge Kofler GmbH'],n:'Scharniere',e:'Stück',p:[1,4],m:[300,1200]},
+  {a:1,l:['Metallwaren Lang KG'],n:'Metallgriffe',e:'Stück',p:[3,8],m:[150,600]},
+  {a:1,l:['Metallwaren Lang KG'],n:'Schrankfüße',e:'Stück',p:[2,6],m:[200,800]},
   {a:2,l:['Klebstoffe Dorner GmbH'],n:'Holzleim',e:'Eimer',p:[28,70],m:[20,90]},
-  {a:2,l:['Farben Gruber KG'],n:'Lack',e:'Dosen',p:[18,55],m:[40,200]},
   {a:2,l:['Schraubenhandel Wimmer e. K.'],n:'Schrauben',e:'Kartons',p:[12,40],m:[50,200]},
-  {a:3,l:['Mineralöle Brandstetter GmbH'],n:'Schmieröl',e:'Fässer',p:[120,310],m:[4,20]},
-  {a:3,l:['Ölhandel Kerschbaum KG'],n:'Hydrauliköl',e:'Kanister',p:[35,95],m:[20,80]}
+  {a:2,l:['Schraubenhandel Wimmer e. K.'],n:'Nägel',e:'Kartons',p:[9,28],m:[40,200]},
+  {a:2,l:['Farben Gruber KG'],n:'Holzfarbe',e:'Dosen',p:[18,55],m:[40,200]},
+  {a:2,l:['Farben Gruber KG'],n:'Klarlack',e:'Dosen',p:[22,60],m:[40,200]},
+  {a:2,l:['Schraubenhandel Wimmer e. K.'],n:'Nieten',e:'Kartons',p:[10,30],m:[30,150]},
+  {a:3,l:['Mineralöle Brandstetter GmbH'],n:'Schmieröl',e:'Kanister',p:[35,95],m:[10,40]},
+  {a:3,l:['Schleifmittel Aigner GmbH'],n:'Schleifpapier',e:'Pakete',p:[15,45],m:[30,150]},
+  {a:3,l:['Schleifmittel Aigner GmbH'],n:'Polierpaste',e:'Dosen',p:[12,35],m:[20,80]},
+  {a:3,l:['Mineralöle Brandstetter GmbH'],n:'Maschinenfett',e:'Kartuschen',p:[6,18],m:[40,200]},
+  {a:3,l:['Tankstoffe Wagner KG'],n:'Benzin',e:'Liter',p:[1,2],m:[300,1500]},
+  {a:3,l:['Tankstoffe Wagner KG'],n:'Diesel',e:'Liter',p:[1,2],m:[300,1500]}
 ];
 function basis(){
   const r=pick(ROH),a=ARTEN[r.a];
@@ -546,7 +602,7 @@ R.beleg=t=>{
   }).join('');
   return `<p class="intro">${d.intro}</p>
   <div class="beleg"><div class="b-kopf"><div class="b-von">${d.von}</div><div class="b-meta">Rechnung ${d.nr}<br>${d.datum}</div></div>
-  <div class="b-an">Rechnungsempfänger: Auer Fertigung GmbH</div><table><tbody>${rows}</tbody></table></div>
+  <div class="b-an">Rechnungsempfänger: Hans Glück e. K., Rachelstraße 6-8, 93059 Regensburg</div><table><tbody>${rows}</tbody></table></div>
   ${bar(st)}${result(st)}`;
 };
 
